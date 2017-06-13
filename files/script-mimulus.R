@@ -1,0 +1,108 @@
+library(qtl)
+setwd("C:\\Users\\Emanoel\\Desktop\\Biometria de Marcadores Genéticos\\Lista 10")
+mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
+##Ajuste marcadores sobrepostos jittermap
+mimulus_jm_im <- jittermap(mapa_mimulus)
+summary(mimulus_jm_im)
+plot.map(mimulus_jm_im)
+#grafico do fenótipo
+plot.pheno(mimulus_jm_im, pheno.col= 5)
+#calculo probabilidade condicional
+mimulus_im<- calc.genoprob(mimulus_jm_im, step = 1, error.prob=0.0001)
+#permutação
+mimulus_perm_im = scanone(mimulus_im, method = "hk", pheno.col=5, n.perm=1000)
+summary(mimulus_perm_im, alpha=c(0.05, 0.01))
+threshold_hk_im<-summary(mimulus_perm_im, alpha = 0.05)
+plot(mimulus_perm_im)
+abline(v=threshold_hk_im, lty = 2, col = "orange")
+## Método IM
+mimulus_qtl_hk = scanone(mimulus_im, method = "hk", pheno.col = 5)
+#QTL significativo
+(sum_qtl_hk<-summary(mimulus_qtl_hk, perms = mimulus_perm_im, alpha = 0.05, pvalues = TRUE))
+plot(mimulus_qtl_hk, col = "blue")
+abline(h = threshold_hk_im, lty = 2, col = "orange")
+#plotando apenas crmossomo 13 que teve efeito
+mimulus_hk13 = scanone(mimulus_im, method = "hk", pheno.col=5, tol=1e-6, chr = c(13))
+plot(mimulus_hk13)
+abline(h = threshold_hk_im, lty= 2, col="orange") #5%
+# observando QTL
+qtl_im <- makeqtl(mimulus_im, chr=sum_qtl_hk$chr, pos=sum_qtl_hk$pos, what="prob")
+plot(qtl_im)
+# observando os efeitos ao longo do cromossomo 13
+mimulus1 <- sim.geno(mimulus_im, n.draws=16, step=1, off.end=0, error.prob=0.0001,
+                     map.function=c("kosambi"))
+chr_13<-effectscan(mimulus1, pheno.col=5, chr=13, get.se=FALSE, draw=TRUE,
+                   gap=25, mtick=c("line","triangle"),add.legend=TRUE, alternate.chrid=FALSE, ylab="Effect", xlab="Linkage group")
+abline(v = sum_qtl_hk$pos , lty= 2, col="orange")
+# efeito do QTL
+out_im <- fitqtl(mimulus1, pheno.col=5, qtl=qtl_im, method="hk", get.ests=TRUE)
+summary(out_im)
+table1<-data.frame("Linkage Group"=sum_qtl_hk$chr[1],
+                   "Position"=sum_qtl_hk$pos[1],
+                   "LOD"=sum_qtl_hk$lod[1],
+                   "Additive effect"= summary(out_im)$ests[2,1],
+                   "Dominance Effect"=summary(out_im)$ests[3,1])
+table1
+
+
+## Método CIM
+library(qtl)
+setwd("C:\\Users\\Emanoel\\Desktop\\Biometria de Marcadores Genéticos\\Lista 10")
+mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
+##Ajuste marcadores sobrepostos jittermap
+mimulus_jm_cim <- jittermap(mapa_mimulus)
+summary(mimulus_jm_cim)
+plot.map(mimulus_jm_cim)
+#calculo probalidade condicional
+mimulus_cim<- calc.genoprob(mimulus_jm_cim, step = 1, error.prob=0.0001)
+#Achando os cofatores
+stepwiseqtl(mimulus_cim, pheno.col=5, method=c("hk"), covar = NULL, model=c("normal"), 
+            incl.markers=TRUE, refine.locations=TRUE, additive.only=F, 
+            scan.pairs=FALSE, keeplodprofile=TRUE, keeptrace=FALSE, verbose=TRUE, 
+            require.fullrank=FALSE)
+#nível de significancia utilizando método hk
+mimulus_perm_cim <- cim(mimulus_cim, method = "hk", n.marcovar = 3, pheno.col=5, n.perm=1000)
+threshold_hk_cim <- summary(mimulus_perm_cim, alpha = 0.05)
+plot(mimulus_perm_cim)
+abline(v=threshold_hk_cim, lty = 2, col = "orange")
+#mapeamento cim
+mimulus_qtl_cim = cim(mimulus_cim, method = "hk", pheno.col = 5, n.marcovar=3, map.function = "kosambi")
+#QTL significativo
+sum_qtl_cim<-summary(mimulus_qtl_cim, perms = mimulus_perm_cim, alpha = 0.05, pvalues = TRUE)
+plot(mimulus_qtl_cim, col = "blue")
+abline(h = threshold_hk_cim, lty = 2, col = "orange")
+# observando QTL
+qtl_cim <- makeqtl(mimulus_cim, chr=sum_qtl_cim$chr, pos=sum_qtl_cim$pos, what="prob")
+plot(qtl_cim)
+# observando os efeitos ao longo do cromossomo 6 e 13
+mimulus_sim_cim <- sim.geno(mimulus_cim, n.draws=16, step=1, off.end=0, error.prob=0.0001,
+                     map.function=c("kosambi"))
+chr_5<-effectscan(mimulus_sim_cim, pheno.col=5, chr=5, get.se=FALSE, draw=TRUE,
+                   gap=25, mtick=c("line","triangle"),add.legend=TRUE, alternate.chrid=FALSE, ylab="Effect", xlab="Linkage group")
+abline(v = sum_qtl_cim$pos[1] , lty= 2, col="orange")
+chr_13<-effectscan(mimulus_sim_cim, pheno.col=5, chr=13, get.se=FALSE, draw=TRUE,
+                  gap=25, mtick=c("line","triangle"),add.legend=TRUE, alternate.chrid=FALSE, ylab="Effect", xlab="Linkage group")
+abline(v = sum_qtl_cim$pos[2] , lty= 2, col="orange")
+
+out_cim <- fitqtl(mimulus_sim_cim, pheno.col=5, qtl=qtl_cim, method="hk", get.ests=TRUE)
+summary(out_cim)
+table1<-data.frame("Linkage Group"=c(sum_qtl_cim$chr[1], sum_qtl_cim$chr[2]),
+                   "Position"=c(sum_qtl_cim$pos[1], sum_qtl_cim$pos[2]),
+                   "LOD"=c(sum_qtl_cim$lod[1],sum_qtl_cim$lod[2]),
+                   "Additive effect"= c(summary(out_cim)$ests[2,1], summary(out_cim)$ests[4,1]),
+                   "Dominance Effect"=c(summary(out_cim)$ests[3,1], summary(out_cim)$ests[5,1]))
+table1
+
+
+plot(mimulus_qtl_cim, mimulus_qtl_hk, col = c("#FA8072", "#186A3B"))
+abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
+abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
+
+plot(mimulus_qtl_cim, mimulus_qtl_hk, chr= 6, col = c("#FA8072", "#186A3B"))
+abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
+abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
+
+plot(mimulus_qtl_cim, mimulus_qtl_hk, chr= 13, col = c("#FA8072", "#186A3B"))
+abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
+abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
+

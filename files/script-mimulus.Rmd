@@ -1,31 +1,43 @@
-# Script com os comandos utilizados para realizar o mapeamento por intervalo (IM) e o mapeamento por intervalo composto (CIM)
+---
+title: "Script Mimulus - IM and CIM"
+author: "Jackeline Borba, Gabriel Gesteira, Pedro Barbosa e Emanoel Martins"
+date: "June 13, 2017"
+output: html_document
+---
 
-## Definindo pacotes, diretÛrios e arquivos necess·rios
-```{r, echo=TRUE, eval=FALSE}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+### Script com os comandos utilizados para realizar o mapeamento por intervalo (IM) e o mapeamento por intervalo composto (CIM)
+
+
+* Definindo pacotes, diret√≥rios e arquivos necess√°rios
+```{r, echo=TRUE}
 library(qtl)
-setwd("/Documents/doutorado/2017-1/biometria-marcadores/lista10")
+setwd("/home/gabrielgesteira/Documents/doutorado/2017-1/biometria-marcadores/lista10")
 mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
 ```
 
-## Ajuste dos marcadores sobrepostos jittermap
-```{r, echo=TRUE, eval=FALSE}
+* Ajuste dos marcadores sobrepostos jittermap
+```{r, echo=TRUE}
 mimulus_jm_im <- jittermap(mapa_mimulus)
 summary(mimulus_jm_im)
 plot.map(mimulus_jm_im)
 ```
 
-## Plotando gr·fico dos dados fenotÌpicos
-```{r, echo=TRUE, eval=FALSE}
+* Plotando gr√°fico dos dados fenot√≠picos
+```{r, echo=TRUE}
 plot.pheno(mimulus_jm_im, pheno.col= 5)
 ```
 
-## C·lculo das probabilidades condicionais
-```{r, echo=TRUE, eval=FALSE}
+* C√°lculo das probabilidades condicionais
+```{r, echo=TRUE}
 mimulus_im<- calc.genoprob(mimulus_jm_im, step = 1, error.prob=0.0001)
 ```
 
-## Calculando o _threshold_ pelas permutaÁıes
-```{r, echo=TRUE, eval=FALSE}
+* Calculando o _threshold_ pelas permuta√ß√µes
+```{r, echo=TRUE}
 mimulus_perm_im = scanone(mimulus_im, method = "hk", pheno.col=5, n.perm=1000)
 summary(mimulus_perm_im, alpha=c(0.05, 0.01))
 threshold_hk_im<-summary(mimulus_perm_im, alpha = 0.05)
@@ -33,31 +45,31 @@ plot(mimulus_perm_im)
 abline(v=threshold_hk_im, lty = 2, col = "orange")
 ```
 
-# MÈtodo IM
+## M√©todo IM
 
-## QTL significativo
-```{r, echo=TRUE, eval=FALSE}
+* QTL significativo
+```{r, echo=TRUE}
 mimulus_qtl_hk = scanone(mimulus_im, method = "hk", pheno.col = 5)
 (sum_qtl_hk<-summary(mimulus_qtl_hk, perms = mimulus_perm_im, alpha = 0.05, pvalues = TRUE))
 plot(mimulus_qtl_hk, col = "blue")
 abline(h = threshold_hk_im, lty = 2, col = "orange")
 ```
 
-## Plotando apenas cromossomo 13 que teve efeito
-```{r, echo=TRUE, eval=FALSE}
+* Plotando apenas o cromossomo 13 que teve efeito
+```{r, echo=TRUE}
 mimulus_hk13 = scanone(mimulus_im, method = "hk", pheno.col=5, tol=1e-6, chr = c(13))
 plot(mimulus_hk13)
 abline(h = threshold_hk_im, lty= 2, col="orange") #5%
 ```
 
-## Observando QTL
-```{r, echo=TRUE, eval=FALSE}
+* Observando QTL
+```{r, echo=TRUE}
 qtl_im <- makeqtl(mimulus_im, chr=sum_qtl_hk$chr, pos=sum_qtl_hk$pos, what="prob")
 plot(qtl_im)
 ```
 
-## Observando os efeitos ao longo do cromossomo 13
-```{r, echo=TRUE, eval=FALSE}
+* Observando os efeitos ao longo do cromossomo 13
+```{r, echo=TRUE}
 mimulus1 <- sim.geno(mimulus_im, n.draws=16, step=1, off.end=0, error.prob=0.0001,
                      map.function=c("kosambi"))
 chr_13<-effectscan(mimulus1, pheno.col=5, chr=13, get.se=FALSE, draw=TRUE,
@@ -65,8 +77,8 @@ chr_13<-effectscan(mimulus1, pheno.col=5, chr=13, get.se=FALSE, draw=TRUE,
 abline(v = sum_qtl_hk$pos , lty= 2, col="orange")
 ```
 
-## Efeitos dos QTLs
-```{r, echo=TRUE, eval=FALSE}
+* Efeitos dos QTLs
+```{r, echo=TRUE}
 out_im <- fitqtl(mimulus1, pheno.col=5, qtl=qtl_im, method="hk", get.ests=TRUE)
 summary(out_im)
 table1<-data.frame("Linkage Group"=sum_qtl_hk$chr[1],
@@ -77,71 +89,67 @@ table1<-data.frame("Linkage Group"=sum_qtl_hk$chr[1],
 table1
 ```
 
-# MÈtodo _Composite Interval Mapping_ (CIM)
+## M√©todo _Composite Interval Mapping_ (CIM)
 
-
-```{r, echo=TRUE, eval=FALSE}
+* Definindo diret√≥rio e arquivos necess√°rios
+```{r, echo=TRUE}
 library(qtl)
-setwd("C:\\Users\\Emanoel\\Desktop\\Biometria de Marcadores GenÈticos\\Lista 10")
+setwd("/home/gabrielgesteira/Documents/doutorado/2017-1/biometria-marcadores/lista10")
 mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
 ```
 
-## Ajuste dos marcadores sobrepostos jittermap
-```{r, echo=TRUE, eval=FALSE}
+* Ajuste dos marcadores sobrepostos - jittermap
+```{r, echo=TRUE}
 mimulus_jm_cim <- jittermap(mapa_mimulus)
 summary(mimulus_jm_cim)
 plot.map(mimulus_jm_cim)
 ```
 
-## C·lculo das probalidades condicionais
-```{r, echo=TRUE, eval=FALSE}
+* C√°lculo das probalidades condicionais
+```{r, echo=TRUE}
 mimulus_cim<- calc.genoprob(mimulus_jm_cim, step = 1, error.prob=0.0001)
 ```
 
-## Encontrando os cofatores
-```{r, echo=TRUE, eval=FALSE}
+* Encontrando os cofatores
+```{r, echo=TRUE}
 stepwiseqtl(mimulus_cim, pheno.col=5, method=c("hk"), covar = NULL, model=c("normal"), 
             incl.markers=TRUE, refine.locations=TRUE, additive.only=F, 
             scan.pairs=FALSE, keeplodprofile=TRUE, keeptrace=FALSE, verbose=TRUE, 
             require.fullrank=FALSE)
 ```
 
-## NÌvel de signific‚ncia utilizando o mÈtodo de Haley-Knott
-```{r, echo=TRUE, eval=FALSE}
+* N√≠vel de signific√¢ncia utilizando o m√©todo de Haley-Knott
+```{r, echo=TRUE}
 mimulus_perm_cim <- cim(mimulus_cim, method = "hk", n.marcovar = 3, pheno.col=5, n.perm=1000)
 threshold_hk_cim <- summary(mimulus_perm_cim, alpha = 0.05)
 plot(mimulus_perm_cim)
 abline(v=threshold_hk_cim, lty = 2, col = "orange")
 ```
 
-## Mapeamento CIM
-```{r, echo=TRUE, eval=FALSE}
+* Mapeamento CIM
+```{r, echo=TRUE}
 mimulus_qtl_cim = cim(mimulus_cim, method = "hk", pheno.col = 5, n.marcovar=3, map.function = "kosambi")
 ```
 
-# QTLs significativos
-```{r, echo=TRUE, eval=FALSE}
+* QTLs significativos
+```{r, echo=TRUE}
 sum_qtl_cim<-summary(mimulus_qtl_cim, perms = mimulus_perm_cim, alpha = 0.05, pvalues = TRUE)
 plot(mimulus_qtl_cim, col = "blue")
 abline(h = threshold_hk_cim, lty = 2, col = "orange")
 ```
 
-# Observando QTLs
-```{r, echo=TRUE, eval=FALSE}
+* Observando QTLs
+```{r, echo=TRUE}
 qtl_cim <- makeqtl(mimulus_cim, chr=sum_qtl_cim$chr, pos=sum_qtl_cim$pos, what="prob")
 plot(qtl_cim)
 ```
-# Observando os efeitos dos QTLs significativos nos cromossomos
-```{r, echo=TRUE, eval=FALSE}
+
+* Observando os efeitos dos QTLs significativos nos cromossomos
+```{r, echo=TRUE}
 mimulus_sim_cim <- sim.geno(mimulus_cim, n.draws=16, step=1, off.end=0, error.prob=0.0001,
                      map.function=c("kosambi"))
-chr_5<-effectscan(mimulus_sim_cim, pheno.col=5, chr=5, get.se=FALSE, draw=TRUE,
+chr_all<-effectscan(mimulus_sim_cim, pheno.col=5, chr=c(1:14), get.se=FALSE, draw=TRUE,
                    gap=25, mtick=c("line","triangle"),add.legend=TRUE, alternate.chrid=FALSE, ylab="Effect", xlab="Linkage group")
-abline(v = sum_qtl_cim$pos[1] , lty= 2, col="orange")
-chr_13<-effectscan(mimulus_sim_cim, pheno.col=5, chr=13, get.se=FALSE, draw=TRUE,
-                  gap=25, mtick=c("line","triangle"),add.legend=TRUE, alternate.chrid=FALSE, ylab="Effect", xlab="Linkage group")
-abline(v = sum_qtl_cim$pos[2] , lty= 2, col="orange")
-
 out_cim <- fitqtl(mimulus_sim_cim, pheno.col=5, qtl=qtl_cim, method="hk", get.ests=TRUE)
 summary(out_cim)
 table1<-data.frame("Linkage Group"=c(sum_qtl_cim$chr[1], sum_qtl_cim$chr[2]),
@@ -152,7 +160,8 @@ table1<-data.frame("Linkage Group"=c(sum_qtl_cim$chr[1], sum_qtl_cim$chr[2]),
 table1
 ```
 
-```{r, echo=TRUE, eval=FALSE}
+* Plotando os gr√°ficos
+```{r, echo=TRUE}
 plot(mimulus_qtl_cim, mimulus_qtl_hk, col = c("#FA8072", "#186A3B"))
 abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
 abline(h = threshold_hk_im, lty = 2, col = "#186A3B")

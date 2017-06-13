@@ -1,20 +1,34 @@
+
+```{r, echo=TRUE, eval=FALSE}
 library(qtl)
 setwd("C:\\Users\\Emanoel\\Desktop\\Biometria de Marcadores Genéticos\\Lista 10")
 mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
-##Ajuste marcadores sobrepostos jittermap
+```
+
+```{r, echo=TRUE, eval=FALSE}
+# Ajuste marcadores sobrepostos jittermap  
 mimulus_jm_im <- jittermap(mapa_mimulus)
 summary(mimulus_jm_im)
 plot.map(mimulus_jm_im)
+```
+
+```{r, echo=TRUE, eval=FALSE}
 #grafico do fenótipo
 plot.pheno(mimulus_jm_im, pheno.col= 5)
 #calculo probabilidade condicional
 mimulus_im<- calc.genoprob(mimulus_jm_im, step = 1, error.prob=0.0001)
+```
+
+```{r, echo=TRUE, eval=FALSE}
 #permutação
 mimulus_perm_im = scanone(mimulus_im, method = "hk", pheno.col=5, n.perm=1000)
 summary(mimulus_perm_im, alpha=c(0.05, 0.01))
 threshold_hk_im<-summary(mimulus_perm_im, alpha = 0.05)
 plot(mimulus_perm_im)
 abline(v=threshold_hk_im, lty = 2, col = "orange")
+```
+
+```{r, echo=TRUE, eval=FALSE}
 ## Método IM
 mimulus_qtl_hk = scanone(mimulus_im, method = "hk", pheno.col = 5)
 #QTL significativo
@@ -43,8 +57,11 @@ table1<-data.frame("Linkage Group"=sum_qtl_hk$chr[1],
                    "Additive effect"= summary(out_im)$ests[2,1],
                    "Dominance Effect"=summary(out_im)$ests[3,1])
 table1
+```
 
 
+
+```{r, echo=TRUE, eval=FALSE}
 ## Método CIM
 library(qtl)
 setwd("C:\\Users\\Emanoel\\Desktop\\Biometria de Marcadores Genéticos\\Lista 10")
@@ -92,8 +109,10 @@ table1<-data.frame("Linkage Group"=c(sum_qtl_cim$chr[1], sum_qtl_cim$chr[2]),
                    "Additive effect"= c(summary(out_cim)$ests[2,1], summary(out_cim)$ests[4,1]),
                    "Dominance Effect"=c(summary(out_cim)$ests[3,1], summary(out_cim)$ests[5,1]))
 table1
+```
 
 
+```{r, echo=TRUE, eval=FALSE}
 plot(mimulus_qtl_cim, mimulus_qtl_hk, col = c("#FA8072", "#186A3B"))
 abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
 abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
@@ -105,4 +124,3 @@ abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
 plot(mimulus_qtl_cim, mimulus_qtl_hk, chr= 13, col = c("#FA8072", "#186A3B"))
 abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
 abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
-

@@ -166,7 +166,7 @@ plot(mimulus_qtl_cim, mimulus_qtl_hk, col = c("#FA8072", "#186A3B"))
 abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
 abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
 
-plot(mimulus_qtl_cim, mimulus_qtl_hk, chr= 6, col = c("#FA8072", "#186A3B"))
+plot(mimulus_qtl_cim, mimulus_qtl_hk, chr= 5, col = c("#FA8072", "#186A3B"))
 abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
 abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
 

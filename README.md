@@ -16,4 +16,4 @@ A proposta deste trabalho foi realizar o mapeamento de QTLs em _Mimulus spp._, c
 
 ## Vídeo: passo-a-passo
 
-Disponibilizamos um vídeo no YouTube onde detalhamos por etapas os procedimentos realizados para o mapeamento dos QTLs. Para visualizar o vídeo, [**clique aqui**]().
+Disponibilizamos um vídeo no YouTube onde detalhamos por etapas os procedimentos realizados para o mapeamento dos QTLs. Para visualizar o vídeo, [**clique aqui**](https://youtu.be/7NnCneyEzLI).

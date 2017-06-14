@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 * Definindo pacotes, diretórios e arquivos necessários
 ```{r, echo=TRUE}
 library(qtl)
-setwd("/home/gabrielgesteira/Documents/doutorado/2017-1/biometria-marcadores/lista10")
+setwd("/home/gabrielgesteira/Documentos/mimulus-qtl/mimulus-qtl/files")
 mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
 ```
 
@@ -94,7 +94,7 @@ table1
 * Definindo diretório e arquivos necessários
 ```{r, echo=TRUE}
 library(qtl)
-setwd("/home/gabrielgesteira/Documents/doutorado/2017-1/biometria-marcadores/lista10")
+setwd("/home/gabrielgesteira/Documentos/mimulus-qtl/mimulus-qtl/files")
 mapa_mimulus = read.cross("mm", file="m_feb06.raw", mapfile = "mapa_mimulus.map")
 ```
 
@@ -111,7 +111,7 @@ mimulus_cim<- calc.genoprob(mimulus_jm_cim, step = 1, error.prob=0.0001)
 ```
 
 * Encontrando os cofatores
-```{r, echo=TRUE}
+```{r, echo=TRUE, eval=FALSE}
 stepwiseqtl(mimulus_cim, pheno.col=5, method=c("hk"), covar = NULL, model=c("normal"), 
             incl.markers=TRUE, refine.locations=TRUE, additive.only=F, 
             scan.pairs=FALSE, keeplodprofile=TRUE, keeptrace=FALSE, verbose=TRUE, 
@@ -122,6 +122,9 @@ stepwiseqtl(mimulus_cim, pheno.col=5, method=c("hk"), covar = NULL, model=c("nor
 ```{r, echo=TRUE}
 mimulus_perm_cim <- cim(mimulus_cim, method = "hk", n.marcovar = 3, pheno.col=5, n.perm=1000)
 threshold_hk_cim <- summary(mimulus_perm_cim, alpha = 0.05)
+```
+
+```{r, echo=TRUE}
 plot(mimulus_perm_cim)
 abline(v=threshold_hk_cim, lty = 2, col = "orange")
 ```
@@ -152,21 +155,17 @@ chr_all<-effectscan(mimulus_sim_cim, pheno.col=5, chr=c(1:14), get.se=FALSE, dra
                    gap=25, mtick=c("line","triangle"),add.legend=TRUE, alternate.chrid=FALSE, ylab="Effect", xlab="Linkage group")
 out_cim <- fitqtl(mimulus_sim_cim, pheno.col=5, qtl=qtl_cim, method="hk", get.ests=TRUE)
 summary(out_cim)
-table1<-data.frame("Linkage Group"=c(sum_qtl_cim$chr[1], sum_qtl_cim$chr[2]),
-                   "Position"=c(sum_qtl_cim$pos[1], sum_qtl_cim$pos[2]),
-                   "LOD"=c(sum_qtl_cim$lod[1],sum_qtl_cim$lod[2]),
-                   "Additive effect"= c(summary(out_cim)$ests[2,1], summary(out_cim)$ests[4,1]),
-                   "Dominance Effect"=c(summary(out_cim)$ests[3,1], summary(out_cim)$ests[5,1]))
+table1<-data.frame("Linkage Group"=c(sum_qtl_cim$chr[1]),
+                   "Position"=c(sum_qtl_cim$pos[1]),
+                   "LOD"=c(sum_qtl_cim$lod[1]),
+                   "Additive effect"= c(summary(out_cim)$ests[2,1]),
+                   "Dominance Effect"=c(summary(out_cim)$ests[3,1]))
 table1
 ```
 
 * Plotando os gráficos
 ```{r, echo=TRUE}
 plot(mimulus_qtl_cim, mimulus_qtl_hk, col = c("#FA8072", "#186A3B"))
-abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
-abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
-
-plot(mimulus_qtl_cim, mimulus_qtl_hk, chr= 5, col = c("#FA8072", "#186A3B"))
 abline(h = threshold_hk_cim, lty = 2, col = "#FA8072")
 abline(h = threshold_hk_im, lty = 2, col = "#186A3B")
 
